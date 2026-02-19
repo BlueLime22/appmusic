@@ -15,6 +15,8 @@ const notes = ['C5', 'B4', 'A4', 'G4', 'F4', 'E4', 'D4', 'C4'];
 export default function Grid() {
     const [grid, setGrid] = useState(createGrid());
     const [step, setStep] = useState(0);
+    const [isMouseDown, setIsMouseDown] = useState(false);
+    const [instrument, setInstrument] = useState(1);
 
     const synthRef = useRef(null);
 
@@ -27,12 +29,30 @@ export default function Grid() {
     }, []);
 
     useEffect(() => {
-        synthRef.current = new Tone.PolySynth(Tone.Synth).toDestination();
+        let isMounted = true;
+
+        async function loadInstrument() {
+            let synth;
+            if (instrument === 1) {
+                synth = new Tone.PolySynth(Tone.Synth).toDestination();
+            } else if (instrument === 2) {
+                synth = new Tone.PolySynth(Tone.FMSynth).toDestination();
+            } else if (instrument === 3) {
+                synth = new Tone.PolySynth(Tone.AMSynth).toDestination();
+            } else {
+                synth = new Tone.PolySynth(Tone.Synth).toDestination();
+            }
+
+            if (isMounted) synthRef.current = synth;
+        }
+
+        loadInstrument();
 
         return () => {
-            synthRef.current.dispose();
+            if (synthRef.current) synthRef.current.dispose();
+            isMounted = false;
         };
-    }, []);
+    }, [instrument]);
 
     useEffect(() => {
         if (!synthRef.current) return;
@@ -47,6 +67,15 @@ export default function Grid() {
         });
     }, [step]);
 
+    useEffect(() => {
+        const handleMouseUp = () => setIsMouseDown(false);
+        window.addEventListener('mouseup', handleMouseUp);
+
+        return () => {
+            window.removeEventListener('mouseup', handleMouseUp);
+        }
+    }, []);
+
     function toggleCell(row, col) {
         setGrid(prevGrid =>
             prevGrid.map((r, rIndex) =>
@@ -58,29 +87,44 @@ export default function Grid() {
     }
 
     return (
-        <div>
-            {grid.map((row, rowIndex) => (
-                <div key={rowIndex} style={{ display: 'flex' }}>
-                    {row.map((cell, colIndex) => (
-                        <div
-                            key={colIndex}
-                            onClick={() => toggleCell(rowIndex, colIndex)}
-                            style={{
-                                width: 50,
-                                height: 50,
-                                margin: 2,
-                                cursor: 'pointer',
-                                backgroundColor:
-                                    colIndex === step
-                                        ? 'gray'
-                                        : cell
-                                            ? 'rgb(56, 154, 179)'
-                                            : 'lightgray'
-                            }}
-                        />
-                    ))}
-                </div>
-            ))}
-        </div>
+        <>
+            <div id='grid'>
+                {grid.map((row, rowIndex) => (
+                    <div key={rowIndex} style={{ display: 'flex' }}>
+                        {row.map((cell, colIndex) => (
+                            <div
+                                key={colIndex}
+                                onMouseDown={() => {
+                                    setIsMouseDown(true);
+                                    toggleCell(rowIndex, colIndex);
+                                }}
+                                onMouseEnter={() => {
+                                    if (isMouseDown) {
+                                        toggleCell(rowIndex, colIndex);
+                                    }
+                                }}
+                                style={{
+                                    width: 50,
+                                    height: 50,
+                                    margin: 2,
+                                    cursor: 'pointer',
+                                    backgroundColor:
+                                        colIndex === step
+                                            ? 'gray'
+                                            : cell
+                                                ? 'rgb(56, 154, 179)'
+                                                : 'lightgray'
+                                }}
+                            />
+                        ))}
+                    </div>
+                ))}
+            </div>
+            <div>
+                <button onClick={() => setInstrument(1)}>Synth</button>
+                <button onClick={() => setInstrument(2)}>FM Synth</button>
+                <button onClick={() => setInstrument(3)}>AM Synth</button>
+            </div>
+        </>
     );
 }
