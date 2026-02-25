@@ -26,8 +26,9 @@ h1 {
   line-height: 1.1;
 }
 
-button.aan {
+.aan {
   background-color: rgb(56, 154, 179);
+  box-shadow: rgb(157, 203, 214);
 }
 
 button {
@@ -35,4 +36,6 @@ button {
   height: 50px;
   margin-right: 5px;
   margin-top: 50px;
+  border: 0px solid;
+  border-radius: 3px;
 }

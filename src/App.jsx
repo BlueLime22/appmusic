@@ -1,80 +1,82 @@
-import { useState, useEffect, useRef } from 'react';
-import * as Tone from 'tone';
+import { useState, useEffect, useRef } from 'react'
+import * as Tone from 'tone'
 
-const rijen = 8;
-const kolommen = 24;
+const rijen = 8
+const kolommen = 24
 
 function createGrid() {
     return Array.from({ length: rijen }, () =>
         Array.from({ length: kolommen }, () => false)
-    );
+    )
 }
 
-const notes = ['C5', 'B4', 'A4', 'G4', 'F4', 'E4', 'D4', 'C4'];
+const notes = ['C5', 'B4', 'A4', 'G4', 'F4', 'E4', 'D4', 'C4']
 
 export default function App() {
-    const [grid, setGrid] = useState(createGrid());
-    const [step, setStep] = useState(0);
-    const [isMouseDown, setIsMouseDown] = useState(false);
-    const [instrument, setInstrument] = useState(1);
+    const [grid, setGrid] = useState(createGrid())
+    const [step, setStep] = useState(0)
+    const [isMouseDown, setIsMouseDown] = useState(false)
+    const [instrument, setInstrument] = useState(1)
+    const [paused, setPaused] = useState(true)
 
-    const synthRef = useRef(null);
+    const synthRef = useRef(null)
 
     useEffect(() => {
+        if (paused) return
         const interval = setInterval(() => {
-            setStep(prevStep => (prevStep + 1) % kolommen);
-        }, 400);
+            setStep(prevStep => (prevStep + 1) % kolommen)
+        }, 400)
 
-        return () => clearInterval(interval);
-    }, []);
+        return () => clearInterval(interval)
+    }, [paused])
 
     useEffect(() => {
-        let isMounted = true;
+        let isMounted = true
 
         async function loadInstrument() {
-            let synth;
+            let synth
             if (instrument === 1) {
-                synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                synth = new Tone.PolySynth(Tone.Synth).toDestination()
             } else if (instrument === 2) {
-                synth = new Tone.PolySynth(Tone.FMSynth).toDestination();
+                synth = new Tone.PolySynth(Tone.FMSynth).toDestination()
             } else if (instrument === 3) {
                 synth = createViolin()
             } else {
-                synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                synth = new Tone.PolySynth(Tone.Synth).toDestination()
             }
 
-            if (isMounted) synthRef.current = synth;
+            if (isMounted) synthRef.current = synth
         }
 
-        loadInstrument();
+        loadInstrument()
 
         return () => {
-            if (synthRef.current) synthRef.current.dispose();
-            isMounted = false;
-        };
-    }, [instrument]);
+            if (synthRef.current) synthRef.current.dispose()
+            isMounted = false
+        }
+    }, [instrument])
 
     useEffect(() => {
-        if (!synthRef.current) return;
+        if (!synthRef.current) return
 
         grid.forEach((row, rIndex) => {
             if (row[step]) {
                 synthRef.current.triggerAttackRelease(
                     notes[rIndex],
                     '8n'
-                );
+                )
             }
-        });
-    }, [step]);
+        })
+    }, [step])
 
     useEffect(() => {
-        const handleMouseUp = () => setIsMouseDown(false);
-        window.addEventListener('mouseup', handleMouseUp);
+        const handleMouseUp = () => setIsMouseDown(false)
+        window.addEventListener('mouseup', handleMouseUp)
 
         return () => {
-            window.removeEventListener('mouseup', handleMouseUp);
+            window.removeEventListener('mouseup', handleMouseUp)
         }
-    }, []);
+    }, [])
 
     function toggleCell(row, col) {
         setGrid(prevGrid =>
@@ -83,7 +85,7 @@ export default function App() {
                     ? r.map((c, cIndex) => (cIndex === col ? !c : c))
                     : r
             )
-        );
+        )
     }
 
     function createViolin() {
@@ -112,19 +114,16 @@ export default function App() {
                             <div
                                 key={colIndex}
                                 onMouseDown={() => {
-                                    setIsMouseDown(true);
-                                    toggleCell(rowIndex, colIndex);
+                                    setIsMouseDown(true)
+                                    toggleCell(rowIndex, colIndex)
                                 }}
                                 onMouseEnter={() => {
                                     if (isMouseDown) {
-                                        toggleCell(rowIndex, colIndex);
+                                        toggleCell(rowIndex, colIndex)
                                     }
                                 }}
                                 style={{
-                                    width: 50,
-                                    height: 50,
-                                    margin: 2,
-                                    cursor: 'pointer',
+                                    width: 50, height: 50, margin: 2, cursor: 'pointer',
                                     backgroundColor:
                                         colIndex === step
                                             ? 'gray'
@@ -138,10 +137,14 @@ export default function App() {
                 ))}
             </div>
             <div>
-                <button onClick={() => setInstrument(1)}>Xylofoon</button>
-                <button onClick={() => setInstrument(2)}>Synth</button>
-                <button onClick={() => setInstrument(3)}>Violin</button>
+                <button onClick={() => setInstrument(1)} className={instrument === 1 ? 'aan' : ''}>Xylofoon</button>
+                <button onClick={() => setInstrument(2)} className={instrument === 2 ? 'aan' : ''}>Synth</button>
+                <button onClick={() => setInstrument(3)} className={instrument === 3 ? 'aan' : ''}>Violin</button>
+            </div>
+            <div>
+                <button onClick={() => setPaused(!paused)}>{paused ? 'play' : 'pause'}</button>
+                <button onClick={() => {setGrid(createGrid())}}>Reset</button>
             </div>
         </>
-    );
+    )
 }
