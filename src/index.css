@@ -1,5 +1,5 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Princess Sofia', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -13,6 +13,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.princess-sofia-regular {
+  font-family: "Princess Sofia", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -22,20 +28,36 @@ body {
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-size: 5em;
+  line-height: 0.4;
+}
+
+/* https://primereact.org/slider/ */
+.slider .p-slider {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.slider .p-slider-range {
+  background-color: rgb(56, 154, 179);
+}
+
+.slider .p-slider-handle {
+  background-color: white;
+  border-color: rgb(56, 154, 179);
+}
+
+button {
+  font-family: 'Princess Sofia', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 3em;
+  width: 150px;
+  height: 75px;
+  margin-top: 10px;
+  border: 0px solid;
+  border-radius: 3px;
 }
 
 .aan {
   background-color: rgb(56, 154, 179);
   box-shadow: rgb(157, 203, 214);
-}
-
-button {
-  width: 100px;
-  height: 50px;
-  margin-right: 5px;
-  margin-top: 50px;
-  border: 0px solid;
-  border-radius: 3px;
 }
