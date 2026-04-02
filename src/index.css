@@ -4,9 +4,6 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -25,11 +22,25 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  background-image: url("./assets/achtergrond.gif");
+  background-color: #aaaaaa;
+  background-repeat: repeat;
+  background-position: center;
+  background-size: 10%;
+}
+
+body.dark {
+  background-color: #363636;
+  color: #ffffff;
+}
+
+body.min {
+  background-size: 100%;
 }
 
 h1 {
-  font-size: 5em;
-  line-height: 0.4;
+  font-size: 4em;
+  line-height: 0.2;
 }
 
 /* https://primereact.org/slider/ */
@@ -39,25 +50,43 @@ h1 {
 }
 
 .slider .p-slider-range {
-  background-color: rgb(56, 154, 179);
+  background-color: #389ab3;
 }
 
 .slider .p-slider-handle {
-  background-color: white;
-  border-color: rgb(56, 154, 179);
+  background-color: #ffffff;
+  border-color: #389ab3;
 }
 
 button {
   font-family: 'Princess Sofia', system-ui, Avenir, Helvetica, Arial, sans-serif;
-  font-size: 3em;
+  font-size: 2.5em;
   width: 150px;
   height: 75px;
   margin-top: 10px;
   border: 0px solid;
   border-radius: 3px;
+  background-color: gray;
+}
+
+button:hover {
+  background-color: #9b9a9a;
+}
+
+.achtergrondknop {
+  position: absolute;
+  right: 20px;
+}
+
+.modeknop {
+  position: absolute;
+  right: 180px;
 }
 
 .aan {
-  background-color: rgb(56, 154, 179);
-  box-shadow: rgb(157, 203, 214);
+  background-color: #389ab3;
+}
+
+.aan:hover {
+  background-color: #42b3cf;
 }

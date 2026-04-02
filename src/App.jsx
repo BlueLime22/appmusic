@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef } from 'react' 
+import { useState, useEffect, useRef } from 'react'
 // https://react.dev/reference/react/useState
 // https://react.dev/reference/react/useRef
 // https://react.dev/reference/react/useEffect
 
-import * as Tone from 'tone' 
+import * as Tone from 'tone'
 //https://tonejs.github.io/
 
-import { Slider } from 'primereact/slider' 
+import { Slider } from 'primereact/slider'
 // https://primereact.org/
 // https://primereact.org/slider/
 
@@ -19,7 +19,7 @@ function createGrid() {
     )
 }
 
-const notes = ['C5', 'B4', 'A4', 'G4', 'F4', 'E4', 'D4', 'C4']
+const notes = ['C5', 'B4', 'A4', 'G4', 'F4', 'E4', 'D4', 'C4'] //Noten zijn van laag naar hoog in C majeur
 
 export default function App() {
     const [grid, setGrid] = useState(createGrid())
@@ -28,10 +28,14 @@ export default function App() {
     const [instrument, setInstrument] = useState(1)
     const [paused, setPaused] = useState(true)
     const [tempo, setTempo] = useState(180)
+    const [musicNotes, setMusicNotes] = useState(true)
+    const [darkMode, setDarkMode] = useState(false)
 
     const synthRef = useRef(null)
 
-    // Deze useEffect runt bij het bouwen van het project, en bij elke keer als de variable paused of tempo veranderen.
+    // In deze useEffect wordt gebruik gemaakt van setInterval, een ingebouwde functie van javascript.
+    // https://www.w3schools.com/jsref/met_win_setinterval.asp
+    // Deze useEffect (re)runt bij het bouwen van het project, en bij elke keer als de variable paused of tempo veranderen.
     // Wanneer paused waar is, returnt de functie, en wordt de step niet verhoogt.
     // Anders wordt om de 60000 / tempo miliseconden de step met 1 verhoogt.
     // Wanneer de step aan het einde komt van de matrix (dus bij 24), wordt er met modulo ervoor gezorgt dat step weer terug zal gaan naar 0.
@@ -48,7 +52,7 @@ export default function App() {
 
     useEffect(() => {
         let isMounted = true // Doordat er een async functie is en we niet willen dat deze gerunt wordt wanneer de useEffect geunmount is,
-                             // wordt er met deze variable gechecked of dat het veilig is om de functie te runnen.
+        // wordt er met deze variable gechecked of dat het veilig is om de functie te runnen.
 
         // Deze functie maakt de variable synth aan, en zet deze op het gewenste instrument.
         async function loadInstrument() {
@@ -100,6 +104,24 @@ export default function App() {
         }
     }, [])
 
+    // als musicNotes false is, wordt de minimalistische versie weergegeven. De gebuiker kan met een knop uit deze 2 optie kiezen.
+    useEffect(() => {
+        if (!musicNotes) {
+            document.body.classList.add("min");
+        } else {
+            document.body.classList.remove("min");
+        }
+    }, [musicNotes]);
+
+    // Deze useEffect werkt hetzelfde als de vorige; de gebruiker kan kiezen uit light- of darkmode. De opmaak wordt vervolgens in de css toegepast.
+    useEffect(() => {
+        if (darkMode) {
+            document.body.classList.add("dark");
+        } else {
+            document.body.classList.remove("dark");
+        }
+    }, [darkMode]);
+
     // Deze functie verandert de cel van false naar true of van true naar false.
     function toggleCell(row, col) {
         setGrid(prevGrid =>
@@ -131,23 +153,25 @@ export default function App() {
     return (
         <>
             <h1>AppMusic</h1>
-            <div id='grid'>
+            <div>
                 {grid.map((row, rowIndex) => (
-                    <div key={rowIndex} style={{ display:'flex'}}>
+                    <div key={rowIndex} style={{ display: 'flex' }}>
                         {row.map((cell, colIndex) => (
                             <div
                                 key={colIndex}
+                                // https://www.w3schools.com/jsref/event_onmousedown.asp
                                 onMouseDown={() => {
                                     setIsMouseDown(true)
                                     toggleCell(rowIndex, colIndex)
                                 }}
+                                // https://www.w3schools.com/jsref/event_onmouseenter.asp
                                 onMouseEnter={() => {
                                     if (isMouseDown) {
                                         toggleCell(rowIndex, colIndex)
                                     }
                                 }}
                                 style={{
-                                    width: 50, height: 50, margin: 2, cursor: 'pointer',
+                                    width: 50, height: 50, border: '1px solid #777777', cursor: 'pointer', opacity: 0.75,
                                     backgroundColor:
                                         colIndex === step
                                             ? 'gray'
@@ -160,19 +184,22 @@ export default function App() {
                     </div>
                 ))}
             </div>
-            <div style={{display: 'flex', alignItems: 'center', gap:'10px'}}>
-                <button onClick={() => setInstrument(1)} className={instrument === 1 ? 'aan' : ''}>Xylofoon</button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <button onClick={() => setInstrument(1)} className={instrument === 1 ? 'aan' : ''}>Xylophone</button>
                 <button onClick={() => setInstrument(2)} className={instrument === 2 ? 'aan' : ''}>Synth</button>
                 <button onClick={() => setInstrument(3)} className={instrument === 3 ? 'aan' : ''}>Violin</button>
             </div>
-            <div style={{display: 'flex', alignItems: 'center', gap:'10px'}}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <button onClick={() => setPaused(!paused)}>{paused ? 'Play' : 'Pause'}</button>
                 <button onClick={() => { setGrid(createGrid()) }}>Reset</button>
 
                 {/* https://www.youtube.com/watch?v=7B8EgSQM3k0 
                     https://primereact.org/slider/ */}
-                <Slider className="slider" value={tempo} onChange={(e) => setTempo(e.value)} min={60} max={300} style={{width: '300px'}} />
+                <Slider className="slider" value={tempo} onChange={(e) => setTempo(e.value)} min={60} max={300} style={{ width: '300px' }} />
                 <p>{tempo} bpm</p>
+
+                <button onClick={() => setMusicNotes(!musicNotes)} className='achtergrondknop'>{musicNotes ? '♪' : '♫'}</button>
+                <button onClick={() => setDarkMode(!darkMode)} className='modeknop'>{darkMode ? 'Light' : 'Dark'}</button>
             </div>
         </>
     )
